@@ -1,0 +1,894 @@
+{
+    "type": "MySQLNotebook",
+    "version": "1.0",
+    "caption": "DB Notebook",
+    "content": "\\about\nshow DATABASES;\ncreate database assignment5;\nuse assignment5;\nCREATE TABLE members (\n    member_id INT PRIMARY KEY,\n    first_name VARCHAR(50) NOT NULL,\n    last_name VARCHAR(50) NOT NULL,\n    email VARCHAR(100) UNIQUE NOT NULL,\n    join_date DATE NOT NULL\n);\nCREATE TABLE books (\n    book_id INT PRIMARY KEY,\n    title VARCHAR(255) NOT NULL,\n    author VARCHAR(100) NOT NULL,\n    genre VARCHAR(50),\n    publish_year INT\n);\nCREATE TABLE borrowings (\n    borrowing_id INT PRIMARY KEY,\n    member_id INT NOT NULL,\n    book_id INT NOT NULL,\n    borrow_date DATE NOT NULL,\n    return_date DATE,\n    FOREIGN KEY (member_id) REFERENCES members(member_id),\n    FOREIGN KEY (book_id) REFERENCES books(book_id)\n);\nCREATE TABLE employees (\n    employee_id INT PRIMARY KEY,\n    first_name VARCHAR(50) NOT NULL,\n    last_name VARCHAR(50) NOT NULL,\n    hire_date DATE NOT NULL,\n    position VARCHAR(50) NOT NULL\n);\nINSERT INTO members (member_id, first_name, last_name, email, join_date) \nVALUES \n    (1, 'Alice', 'Smith', 'alice.smith@email.com', '2023-01-15'),\n    (2, 'Bob', 'Johnson', 'bjohnson@email.com', '2023-03-22'),\n    (3, 'Charlie', 'Davis', 'cdavis88@email.com', '2023-06-10');\nINSERT INTO books (book_id, title, author, genre, publish_year) \nVALUES \n    (101, 'The Great Gatsby', 'F. Scott Fitzgerald', 'Fiction', 1925),\n    (102, '1984', 'George Orwell', 'Dystopian', 1949),\n    (103, 'The Hobbit', 'J.R.R. Tolkien', 'Fantasy', 1937);\nINSERT INTO borrowings (borrowing_id, member_id, book_id, borrow_date, return_date) \nVALUES \n    (1001, 1, 101, '2023-07-01', '2023-07-15'),\n    (1002, 2, 102, '2023-08-10', NULL),\n    (1003, 3, 103, '2023-09-05', '2023-09-20');\nINSERT INTO employees (employee_id, first_name, last_name, hire_date, position) \nVALUES \n    (1, 'Sarah', 'Connor', '2020-05-10', 'Head Librarian'),\n    (2, 'David', 'Miller', '2021-08-15', 'Assistant Librarian'),\n    (3, 'Emily', 'Chen', '2022-11-01', 'Clerk');\nSELECT \n    CONCAT(UPPER(first_name), ' ', last_name) AS full_name,\n    LENGTH(email) AS email_length,\n    DATEDIFF(CURRENT_DATE, join_date) AS days_as_member\nFROM members\nWHERE join_date >= DATE_SUB(CURRENT_DATE, INTERVAL 1 YEAR)\nORDER BY join_date DESC;\nSELECT \n    b.genre,\n    COUNT(br.borrowing_id) AS total_books_borrowed,\n    AVG(DATEDIFF(br.return_date, br.borrow_date)) AS avg_borrowing_duration_days,\n    COUNT(DISTINCT br.member_id) AS unique_members\nFROM books b\nJOIN borrowings br ON b.book_id = br.book_id\nGROUP BY b.genre\nHAVING COUNT(br.borrowing_id) > 500;\nSELECT DISTINCT e.first_name, e.last_name, e.position\nFROM employees e\nJOIN borrowings br ON e.employee_id = br.employee_id\nWHERE br.member_id IN (\n    SELECT member_id \n    FROM borrowings \n    GROUP BY member_id \n    HAVING COUNT(borrowing_id) > (\n        SELECT AVG(borrow_count) \n        FROM (\n            SELECT COUNT(borrowing_id) AS borrow_count \n            FROM borrowings \n            GROUP BY member_id\n        ) AS member_averages\n    )\n);\nSELECT first_name, last_name\nFROM members\nWHERE member_id IN (\n    SELECT member_id \n    FROM borrowings \n    WHERE return_date IS NULL AND DATEDIFF(CURRENT_DATE, borrow_date) > 30\n)\nUNION\nSELECT first_name, last_name\nFROM employees\nWHERE hire_date <= DATE_SUB(CURRENT_DATE, INTERVAL 10 YEAR);\nCREATE VIEW v_top_borrowers AS\nSELECT \n    CONCAT(m.first_name, ' ', m.last_name) AS full_name,\n    m.email,\n    COUNT(br.borrowing_id) AS total_borrowed\nFROM members m\nJOIN borrowings br ON m.member_id = br.member_id\nGROUP BY m.member_id, m.first_name, m.last_name, m.email\nORDER BY total_borrowed DESC\nLIMIT 15;\nSTART TRANSACTION;\n\nUPDATE members SET member_id = 901 WHERE member_id = 555;\nUPDATE members SET member_id = 902 WHERE member_id = 556;\n\nSAVEPOINT after_first_member_update;\n\nUPDATE members SET member_id = 901 WHERE member_id = 557;\n\nROLLBACK TO after_first_member_update;\n\nUPDATE members SET member_id = 903 WHERE member_id = 557;\n\nCOMMIT;\n",
+    "options": {
+        "tabSize": 4,
+        "indentSize": 4,
+        "insertSpaces": true,
+        "defaultEOL": "LF",
+        "trimAutoWhitespace": true
+    },
+    "viewState": {
+        "cursorState": [
+            {
+                "inSelectionMode": false,
+                "selectionStart": {
+                    "lineNumber": 122,
+                    "column": 1
+                },
+                "position": {
+                    "lineNumber": 122,
+                    "column": 1
+                }
+            }
+        ],
+        "viewState": {
+            "scrollLeft": 0,
+            "firstPosition": {
+                "lineNumber": 1,
+                "column": 1
+            },
+            "firstPositionDeltaTop": 0
+        },
+        "contributionsState": {
+            "editor.contrib.folding": {},
+            "editor.contrib.wordHighlighter": false
+        }
+    },
+    "contexts": [
+        {
+            "state": {
+                "start": 1,
+                "end": 1,
+                "language": "mysql",
+                "result": {
+                    "type": "text",
+                    "text": [
+                        {
+                            "type": 2,
+                            "content": "Welcome to the MySQL Shell - DB Notebook.\n\nPress Ctrl+Enter to execute the code block.\n\nExecute \\sql to switch to SQL, \\js to JavaScript and \\ts to TypeScript mode.\nExecute \\help or \\? for help;",
+                            "language": "ansi"
+                        }
+                    ]
+                },
+                "currentHeight": 117.953125,
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 6
+                        },
+                        "contentStart": 0,
+                        "state": 0
+                    }
+                ]
+            },
+            "data": []
+        },
+        {
+            "state": {
+                "start": 2,
+                "end": 2,
+                "language": "mysql",
+                "result": {
+                    "type": "resultIds",
+                    "list": [
+                        "1e8911c4-1419-48f2-d2c7-05b72cd636ea"
+                    ]
+                },
+                "currentHeight": 138.53125,
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 15
+                        },
+                        "contentStart": 0,
+                        "state": 0
+                    }
+                ]
+            },
+            "data": [
+                {
+                    "tabId": "a5beaf37-1ab4-417f-97b1-a3c828d6f52e",
+                    "resultId": "1e8911c4-1419-48f2-d2c7-05b72cd636ea",
+                    "rows": [
+                        {
+                            "0": "information_schema"
+                        },
+                        {
+                            "0": "mysql"
+                        },
+                        {
+                            "0": "performance_schema"
+                        }
+                    ],
+                    "columns": [
+                        {
+                            "title": "Database",
+                            "field": "0",
+                            "dataType": {
+                                "type": 17,
+                                "characterMaximumLength": 65535,
+                                "flags": [
+                                    "BINARY",
+                                    "ASCII",
+                                    "UNICODE"
+                                ],
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        }
+                    ],
+                    "executionInfo": {
+                        "text": "OK, 3 records retrieved in 0.978ms"
+                    },
+                    "totalRowCount": 3,
+                    "hasMoreRows": false,
+                    "currentPage": 0,
+                    "index": 0,
+                    "sql": "show DATABASES",
+                    "updatable": false
+                }
+            ]
+        },
+        {
+            "state": {
+                "start": 3,
+                "end": 3,
+                "language": "mysql",
+                "result": {
+                    "type": "text",
+                    "text": [
+                        {
+                            "type": 2,
+                            "index": 0,
+                            "resultId": "c90b97cc-8612-4126-f099-04ca1d972a80",
+                            "content": "OK, 1 row affected in 7.178ms"
+                        }
+                    ]
+                },
+                "currentHeight": 28,
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 28
+                        },
+                        "contentStart": 0,
+                        "state": 0
+                    }
+                ]
+            },
+            "data": []
+        },
+        {
+            "state": {
+                "start": 4,
+                "end": 4,
+                "language": "mysql",
+                "result": {
+                    "type": "text",
+                    "text": [
+                        {
+                            "type": 2,
+                            "index": 0,
+                            "resultId": "5067332a-d9dd-43e3-db24-1dc9a3b59652",
+                            "content": "OK, 0 records retrieved in 0.545ms"
+                        }
+                    ]
+                },
+                "currentHeight": 28,
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 16
+                        },
+                        "contentStart": 0,
+                        "state": 0
+                    }
+                ]
+            },
+            "data": []
+        },
+        {
+            "state": {
+                "start": 5,
+                "end": 11,
+                "language": "mysql",
+                "result": {
+                    "type": "text",
+                    "text": [
+                        {
+                            "type": 2,
+                            "index": 0,
+                            "resultId": "1dbb2a4a-55ba-49b0-a5a2-0d39c18da3c0",
+                            "content": "OK, 0 records retrieved in 45.563ms"
+                        }
+                    ]
+                },
+                "currentHeight": 28,
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 197
+                        },
+                        "contentStart": 0,
+                        "state": 0
+                    }
+                ]
+            },
+            "data": []
+        },
+        {
+            "state": {
+                "start": 12,
+                "end": 18,
+                "language": "mysql",
+                "result": {
+                    "type": "text",
+                    "text": [
+                        {
+                            "type": 2,
+                            "index": 0,
+                            "resultId": "78d2f277-ee3b-4a53-bad9-cfcae0a6fb4e",
+                            "content": "OK, 0 records retrieved in 23.144ms"
+                        }
+                    ]
+                },
+                "currentHeight": 28,
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 163
+                        },
+                        "contentStart": 0,
+                        "state": 0
+                    }
+                ]
+            },
+            "data": []
+        },
+        {
+            "state": {
+                "start": 19,
+                "end": 27,
+                "language": "mysql",
+                "result": {
+                    "type": "text",
+                    "text": [
+                        {
+                            "type": 2,
+                            "index": 0,
+                            "resultId": "87f70185-282b-4041-fb5b-88444060cc92",
+                            "content": "OK, 0 records retrieved in 37.343ms"
+                        }
+                    ]
+                },
+                "currentHeight": 28,
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 280
+                        },
+                        "contentStart": 0,
+                        "state": 0
+                    }
+                ]
+            },
+            "data": []
+        },
+        {
+            "state": {
+                "start": 28,
+                "end": 34,
+                "language": "mysql",
+                "result": {
+                    "type": "text",
+                    "text": [
+                        {
+                            "type": 2,
+                            "index": 0,
+                            "resultId": "4aa25ab0-2c20-4c70-f141-31685e2db511",
+                            "content": "OK, 0 records retrieved in 22.614ms"
+                        }
+                    ]
+                },
+                "currentHeight": 28,
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 196
+                        },
+                        "contentStart": 0,
+                        "state": 0
+                    }
+                ]
+            },
+            "data": []
+        },
+        {
+            "state": {
+                "start": 35,
+                "end": 39,
+                "language": "mysql",
+                "result": {
+                    "type": "text",
+                    "text": [
+                        {
+                            "type": 2,
+                            "index": 0,
+                            "resultId": "9b7349d4-ef8c-4a36-e32f-bd60c2fc6f63",
+                            "content": "OK, 3 rows affected in 14.718ms"
+                        }
+                    ]
+                },
+                "currentHeight": 28,
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 275
+                        },
+                        "contentStart": 0,
+                        "state": 0
+                    },
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 275,
+                            "length": 0
+                        },
+                        "contentStart": 274,
+                        "state": 3
+                    }
+                ]
+            },
+            "data": []
+        },
+        {
+            "state": {
+                "start": 40,
+                "end": 44,
+                "language": "mysql",
+                "result": {
+                    "type": "text",
+                    "text": [
+                        {
+                            "type": 2,
+                            "index": 0,
+                            "resultId": "0d0f28a4-8e9b-4667-f4e0-1b6289a3762e",
+                            "content": "OK, 3 rows affected in 6.325ms"
+                        }
+                    ]
+                },
+                "currentHeight": 28,
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 258
+                        },
+                        "contentStart": 0,
+                        "state": 0
+                    }
+                ]
+            },
+            "data": []
+        },
+        {
+            "state": {
+                "start": 45,
+                "end": 49,
+                "language": "mysql",
+                "result": {
+                    "type": "text",
+                    "text": [
+                        {
+                            "type": 2,
+                            "index": 0,
+                            "resultId": "50268d5e-992e-4b85-cf62-0c5451922d06",
+                            "content": "OK, 3 rows affected in 8.674ms"
+                        }
+                    ]
+                },
+                "currentHeight": 28,
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 228
+                        },
+                        "contentStart": 0,
+                        "state": 0
+                    }
+                ]
+            },
+            "data": []
+        },
+        {
+            "state": {
+                "start": 50,
+                "end": 54,
+                "language": "mysql",
+                "result": {
+                    "type": "text",
+                    "text": [
+                        {
+                            "type": 2,
+                            "index": 0,
+                            "resultId": "2f06dbc0-e9ed-4ba3-c621-0b94ebdb7158",
+                            "content": "OK, 3 rows affected in 6.589ms"
+                        }
+                    ]
+                },
+                "currentHeight": 28,
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 262
+                        },
+                        "contentStart": 0,
+                        "state": 0
+                    }
+                ]
+            },
+            "data": []
+        },
+        {
+            "state": {
+                "start": 55,
+                "end": 61,
+                "language": "mysql",
+                "result": {
+                    "type": "resultIds",
+                    "list": [
+                        "f865ed3c-2eb1-4bbb-ed3c-4068c583d7e1"
+                    ]
+                },
+                "currentHeight": 36,
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 255
+                        },
+                        "contentStart": 0,
+                        "state": 0
+                    }
+                ]
+            },
+            "data": [
+                {
+                    "tabId": "a5beaf37-1ab4-417f-97b1-a3c828d6f52e",
+                    "resultId": "f865ed3c-2eb1-4bbb-ed3c-4068c583d7e1",
+                    "rows": [],
+                    "columns": [
+                        {
+                            "title": "*",
+                            "field": "0",
+                            "dataType": {
+                                "type": 0
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        }
+                    ],
+                    "executionInfo": {
+                        "text": "OK, 0 records retrieved in 5.756ms"
+                    },
+                    "totalRowCount": 0,
+                    "hasMoreRows": false,
+                    "currentPage": 0,
+                    "index": 0,
+                    "sql": "SELECT \n    CONCAT(UPPER(first_name), ' ', last_name) AS full_name,\n    LENGTH(email) AS email_length,\n    DATEDIFF(CURRENT_DATE, join_date) AS days_as_member\nFROM members\nWHERE join_date >= DATE_SUB(CURRENT_DATE, INTERVAL 1 YEAR)\nORDER BY join_date DESC",
+                    "updatable": false,
+                    "fullTableName": ""
+                }
+            ]
+        },
+        {
+            "state": {
+                "start": 62,
+                "end": 70,
+                "language": "mysql",
+                "result": {
+                    "type": "resultIds",
+                    "list": [
+                        "c99b9e60-515e-41ea-a4d8-bc344b5cdfba"
+                    ]
+                },
+                "currentHeight": 36,
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 317
+                        },
+                        "contentStart": 0,
+                        "state": 0
+                    }
+                ]
+            },
+            "data": [
+                {
+                    "tabId": "a5beaf37-1ab4-417f-97b1-a3c828d6f52e",
+                    "resultId": "c99b9e60-515e-41ea-a4d8-bc344b5cdfba",
+                    "rows": [],
+                    "columns": [
+                        {
+                            "title": "*",
+                            "field": "0",
+                            "dataType": {
+                                "type": 0
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        }
+                    ],
+                    "executionInfo": {
+                        "text": "OK, 0 records retrieved in 5.137ms"
+                    },
+                    "totalRowCount": 0,
+                    "hasMoreRows": false,
+                    "currentPage": 0,
+                    "index": 0,
+                    "sql": "SELECT \n    b.genre,\n    COUNT(br.borrowing_id) AS total_books_borrowed,\n    AVG(DATEDIFF(br.return_date, br.borrow_date)) AS avg_borrowing_duration_days,\n    COUNT(DISTINCT br.member_id) AS unique_members\nFROM books b\nJOIN borrowings br ON b.book_id = br.book_id\nGROUP BY b.genre\nHAVING COUNT(br.borrowing_id) > 500",
+                    "updatable": false,
+                    "fullTableName": ""
+                }
+            ]
+        },
+        {
+            "state": {
+                "start": 71,
+                "end": 86,
+                "language": "mysql",
+                "result": {
+                    "type": "text",
+                    "text": [
+                        {
+                            "type": 0,
+                            "index": 0,
+                            "content": "MySQL Error (1054): Unknown column 'br.employee_id' in 'on clause'",
+                            "language": "ansi"
+                        }
+                    ],
+                    "executionInfo": {
+                        "text": ""
+                    }
+                },
+                "currentHeight": 28,
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 452
+                        },
+                        "contentStart": 0,
+                        "state": 0
+                    }
+                ]
+            },
+            "data": []
+        },
+        {
+            "state": {
+                "start": 87,
+                "end": 97,
+                "language": "mysql",
+                "result": {
+                    "type": "resultIds",
+                    "list": [
+                        "0ec0f19a-f1e8-4568-f47a-a47e5ae77445"
+                    ]
+                },
+                "currentHeight": 36,
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 293
+                        },
+                        "contentStart": 0,
+                        "state": 0
+                    }
+                ]
+            },
+            "data": [
+                {
+                    "tabId": "a5beaf37-1ab4-417f-97b1-a3c828d6f52e",
+                    "resultId": "0ec0f19a-f1e8-4568-f47a-a47e5ae77445",
+                    "rows": [
+                        {
+                            "0": "Bob",
+                            "1": "Johnson"
+                        }
+                    ],
+                    "columns": [
+                        {
+                            "title": "first_name",
+                            "field": "0",
+                            "dataType": {
+                                "type": 17,
+                                "characterMaximumLength": 65535,
+                                "flags": [
+                                    "BINARY",
+                                    "ASCII",
+                                    "UNICODE"
+                                ],
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        },
+                        {
+                            "title": "last_name",
+                            "field": "1",
+                            "dataType": {
+                                "type": 17,
+                                "characterMaximumLength": 65535,
+                                "flags": [
+                                    "BINARY",
+                                    "ASCII",
+                                    "UNICODE"
+                                ],
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        }
+                    ],
+                    "executionInfo": {
+                        "text": "OK, 1 record retrieved in 1.495ms"
+                    },
+                    "totalRowCount": 1,
+                    "hasMoreRows": false,
+                    "currentPage": 0,
+                    "index": 0,
+                    "sql": "SELECT first_name, last_name\nFROM members\nWHERE member_id IN (\n    SELECT member_id \n    FROM borrowings \n    WHERE return_date IS NULL AND DATEDIFF(CURRENT_DATE, borrow_date) > 30\n)\nUNION\nSELECT first_name, last_name\nFROM employees\nWHERE hire_date <= DATE_SUB(CURRENT_DATE, INTERVAL 10 YEAR)",
+                    "updatable": false,
+                    "fullTableName": ""
+                }
+            ]
+        },
+        {
+            "state": {
+                "start": 98,
+                "end": 107,
+                "language": "mysql",
+                "result": {
+                    "type": "text",
+                    "text": [
+                        {
+                            "type": 2,
+                            "index": 0,
+                            "resultId": "8fcb58d8-b7a4-4e55-a74a-1c52125a048a",
+                            "content": "OK, 0 records retrieved in 12.371ms"
+                        }
+                    ]
+                },
+                "currentHeight": 28,
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 313
+                        },
+                        "contentStart": 0,
+                        "state": 0
+                    }
+                ]
+            },
+            "data": []
+        },
+        {
+            "state": {
+                "start": 108,
+                "end": 121,
+                "language": "mysql",
+                "result": {
+                    "type": "text",
+                    "text": [
+                        {
+                            "type": 2,
+                            "index": 0,
+                            "resultId": "7ea09cba-4de2-4791-a42f-3c3da37bca15",
+                            "content": "OK, 0 records retrieved in 0.739ms"
+                        },
+                        {
+                            "type": 2,
+                            "index": 1,
+                            "resultId": "213a4f49-b7c1-4a41-d07e-556bc7704f1c",
+                            "content": "OK, 0 records retrieved in 1.237ms"
+                        },
+                        {
+                            "type": 2,
+                            "index": 2,
+                            "resultId": "a5288666-c26b-456c-8b25-ddb713ebfc87",
+                            "content": "OK, 0 records retrieved in 0.568ms"
+                        },
+                        {
+                            "type": 2,
+                            "index": 3,
+                            "resultId": "f5d007f6-e417-4393-b148-a29cd0469560",
+                            "content": "OK, 0 records retrieved in 0.418ms"
+                        },
+                        {
+                            "type": 2,
+                            "index": 4,
+                            "resultId": "56785962-d99c-45b5-ff18-ab7af769558a",
+                            "content": "OK, 0 records retrieved in 0.578ms"
+                        },
+                        {
+                            "type": 2,
+                            "index": 5,
+                            "resultId": "26af81ec-e813-4656-ac47-ae7da511fa64",
+                            "content": "OK, 0 records retrieved in 0.505ms"
+                        },
+                        {
+                            "type": 2,
+                            "index": 6,
+                            "resultId": "2e6e41b8-5500-44fc-dbd7-416939828f0a",
+                            "content": "OK, 0 records retrieved in 0.607ms"
+                        },
+                        {
+                            "type": 2,
+                            "index": 7,
+                            "resultId": "4522553c-e56b-4d45-a3b9-54efa0235ce8",
+                            "content": "OK, 0 records retrieved in 0.403ms"
+                        }
+                    ]
+                },
+                "currentHeight": 28,
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 18
+                        },
+                        "contentStart": 0,
+                        "state": 0
+                    },
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 18,
+                            "length": 59
+                        },
+                        "contentStart": 20,
+                        "state": 0
+                    },
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 77,
+                            "length": 58
+                        },
+                        "contentStart": 78,
+                        "state": 0
+                    },
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 135,
+                            "length": 38
+                        },
+                        "contentStart": 137,
+                        "state": 0
+                    },
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 173,
+                            "length": 59
+                        },
+                        "contentStart": 175,
+                        "state": 0
+                    },
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 232,
+                            "length": 40
+                        },
+                        "contentStart": 234,
+                        "state": 0
+                    },
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 272,
+                            "length": 59
+                        },
+                        "contentStart": 274,
+                        "state": 0
+                    },
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 331,
+                            "length": 9
+                        },
+                        "contentStart": 333,
+                        "state": 0
+                    }
+                ]
+            },
+            "data": []
+        },
+        {
+            "state": {
+                "start": 122,
+                "end": 122,
+                "language": "mysql",
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 0
+                        },
+                        "contentStart": 0,
+                        "state": 0
+                    }
+                ]
+            },
+            "data": []
+        }
+    ]
+}

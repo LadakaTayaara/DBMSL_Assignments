@@ -1,0 +1,1872 @@
+{
+    "type": "MySQLNotebook",
+    "version": "1.0",
+    "caption": "DB Notebook",
+    "content": "\\about\ncreate database assignment4;\nuse assignment4;\nCREATE TABLE Project (\n    project_id INT PRIMARY KEY,\n    proj_name VARCHAR(255) NOT NULL,\n    chief_arch VARCHAR(100)\n);\nCREATE TABLE Employee (\n    Emp_id INT PRIMARY KEY,\n    Emp_name VARCHAR(100) NOT NULL\n);\nCREATE TABLE Assigned_To (\n    Project_id INT,\n    Emp_id INT,\n    PRIMARY KEY (Project_id, Emp_id),\n    FOREIGN KEY (Project_id) REFERENCES Project(project_id),\n    FOREIGN KEY (Emp_id) REFERENCES Employee(Emp_id)\n);\nINSERT INTO Project (project_id, proj_name, chief_arch) VALUES \n(10, 'Project Apollo', 'Alice Smith'),\n(20, 'Titanium Build', 'Bob Jones'),\n(30, 'Nimbus Cloud', 'Charlie Davis'),\n(40, 'Project Phoenix', 'Diana Prince');\nINSERT INTO Employee (Emp_id, Emp_name) VALUES \n(1001, 'Eve Carter'),\n(1002, 'Frank Miller'),\n(1003, 'Grace Lee'),\n(1004, 'Henry Ford'),\n(1005, 'Ivy Wilson');\nINSERT INTO Assigned_To (Project_id, Emp_id) VALUES \n(10, 1001),\n(10, 1002),\n(20, 1003),\n(30, 1004),\n(40, 1005);\nSELECT e.Emp_name, p.proj_name\nFROM Employee e\nJOIN Assigned_To a ON e.Emp_id = a.Emp_id\nJOIN Project p ON a.Project_id = p.project_id;\nSELECT a.Emp_id\nFROM Assigned_To a\nJOIN Project p ON a.Project_id = p.project_id\nWHERE p.proj_name = 'C353';\nSELECT e.Emp_name, p.proj_name\nFROM Employee e\nLEFT JOIN Assigned_To a ON e.Emp_id = a.Emp_id\nLEFT JOIN Project p ON a.Project_id = p.project_id;\nSELECT p.proj_name, e.Emp_name\nFROM Project p\nLEFT JOIN Assigned_To a ON p.project_id = a.Project_id\nLEFT JOIN Employee e ON a.Emp_id = e.Emp_id;\nSELECT e.Emp_name, p.proj_name\nFROM Employee e\nLEFT JOIN Assigned_To a ON e.Emp_id = a.Emp_id\nLEFT JOIN Project p ON a.Project_id = p.project_id\n\nUNION\n\nSELECT e.Emp_name, p.proj_name\nFROM Project p\nLEFT JOIN Assigned_To a ON p.project_id = a.Project_id\nLEFT JOIN Employee e ON a.Emp_id = e.Emp_id;\nSELECT \n    e.Emp_name, \n    p.proj_name,\n    CASE \n        WHEN e.Emp_name = p.chief_arch THEN 'Yes'\n        ELSE 'No'\n    END AS is_chief_architect\nFROM Employee e\nJOIN Assigned_To a ON e.Emp_id = a.Emp_id\nJOIN Project p ON a.Project_id = p.project_id;\nCREATE TABLE CUSTOMER (\n    CUST_ID INT PRIMARY KEY,\n    CUST_NAME VARCHAR(100) NOT NULL,\n    ANNUAL_REVENUE DECIMAL(15, 2),\n    CUST_TYPE ENUM('manufacturer', 'wholesaler', 'retailer') NOT NULL\n);\nCREATE TABLE TRUCK (\n    `TRUCK_#` INT PRIMARY KEY,\n    DRIVER_NAME VARCHAR(100) NOT NULL\n);\nCREATE TABLE CITY (\n    CITY_NAME VARCHAR(100) PRIMARY KEY,\n    POPULATION BIGINT\n);\nCREATE TABLE SHIPMENT (\n    `SHIPMENT_#` INT PRIMARY KEY,\n    CUST_ID INT,\n    WEIGHT DECIMAL(10, 2),\n    `TRUCK_#` INT,\n    DESTINATION VARCHAR(100),\n    SHIP_DATE DATE,\n    FOREIGN KEY (CUST_ID) REFERENCES CUSTOMER(CUST_ID),\n    FOREIGN KEY (`TRUCK_#`) REFERENCES TRUCK(`TRUCK_#`),\n    FOREIGN KEY (DESTINATION) REFERENCES CITY(CITY_NAME)\n);\nINSERT INTO CITY (CITY_NAME, POPULATION) VALUES \n('Pune', 3124458),\n('Mumbai', 12442373),\n('Delhi', 11034555),\n('Bangalore', 8443675),\n('Chennai', 7088000);\n\nINSERT INTO TRUCK (`TRUCK_#`, DRIVER_NAME) VALUES \n(101, 'Rajesh Kumar'),\n(102, 'Suresh Singh'),\n(103, 'Amit Patel'),\n(104, 'Vikram Sharma'),\n(105, 'Manoj Desai');\n\nINSERT INTO CUSTOMER (CUST_ID, CUST_NAME, ANNUAL_REVENUE, CUST_TYPE) VALUES \n(1, 'Tata Motors', 5000000.00, 'manufacturer'),\n(2, 'Reliance Retail', 8000000.00, 'retailer'),\n(3, 'Metro Cash & Carry', 3000000.00, 'wholesaler'),\n(4, 'Bajaj Auto', 4500000.00, 'manufacturer'),\n(5, 'D-Mart', 6000000.00, 'retailer');\n\nINSERT INTO SHIPMENT (`SHIPMENT_#`, CUST_ID, WEIGHT, `TRUCK_#`, DESTINATION, SHIP_DATE) VALUES \n(1001, 1, 1500.50, 101, 'Mumbai', '2024-01-10'),\n(1002, 2, 850.00, 102, 'Pune', '2024-02-15'),\n(1003, 3, 2200.75, 103, 'Delhi', '2024-03-05'),\n(1004, 4, 1100.00, 104, 'Bangalore', '2024-03-20'),\n(1005, 5, 950.25, 105, 'Chennai', '2024-04-01');\nSELECT DISTINCT t.DRIVER_NAME\nFROM TRUCK t\nJOIN SHIPMENT s ON t.`TRUCK_#` = s.`TRUCK_#`\nWHERE s.WEIGHT > 100;\nSELECT \n    s.`SHIPMENT_#`,\n    c.CUST_NAME,\n    t.DRIVER_NAME,\n    s.DESTINATION AS CITY_NAME\nFROM SHIPMENT s\nJOIN CUSTOMER c ON s.CUST_ID = c.CUST_ID\nJOIN TRUCK t ON s.`TRUCK_#` = t.`TRUCK_#`\nWHERE s.WEIGHT > 1000;\nSELECT \n    t.`TRUCK_#`, \n    t.DRIVER_NAME, \n    s.`SHIPMENT_#`, \n    c.CUST_NAME, \n    s.DESTINATION AS CITY_NAME\nFROM TRUCK t\nLEFT JOIN SHIPMENT s ON t.`TRUCK_#` = s.`TRUCK_#`\nLEFT JOIN CUSTOMER c ON s.CUST_ID = c.CUST_ID;\n\nSELECT \n    t.`TRUCK_#`, \n    t.DRIVER_NAME, \n    s.`SHIPMENT_#`, \n    c.CUST_NAME, \n    s.DESTINATION AS CITY_NAME\nFROM TRUCK t\nLEFT JOIN SHIPMENT s ON t.`TRUCK_#` = s.`TRUCK_#`\nLEFT JOIN CUSTOMER c ON s.CUST_ID = c.CUST_ID;\nSELECT \n    s.`SHIPMENT_#`, \n    s.WEIGHT, \n    s.DESTINATION AS SHIPMENT_CITY, \n    c.CITY_NAME AS REGISTERED_CITY\nFROM SHIPMENT s\nLEFT JOIN CITY c ON s.DESTINATION = c.CITY_NAME\n\nUNION\n\nSELECT \n    s.`SHIPMENT_#`, \n    s.WEIGHT, \n    s.DESTINATION AS SHIPMENT_CITY, \n    c.CITY_NAME AS REGISTERED_CITY\nFROM CITY c\nLEFT JOIN SHIPMENT s ON c.CITY_NAME = s.DESTINATION;\n",
+    "options": {
+        "tabSize": 4,
+        "indentSize": 4,
+        "insertSpaces": true,
+        "defaultEOL": "LF",
+        "trimAutoWhitespace": true
+    },
+    "viewState": {
+        "cursorState": [
+            {
+                "inSelectionMode": false,
+                "selectionStart": {
+                    "lineNumber": 175,
+                    "column": 1
+                },
+                "position": {
+                    "lineNumber": 175,
+                    "column": 1
+                }
+            }
+        ],
+        "viewState": {
+            "scrollLeft": 0,
+            "firstPosition": {
+                "lineNumber": 158,
+                "column": 1
+            },
+            "firstPositionDeltaTop": 151
+        },
+        "contributionsState": {
+            "editor.contrib.folding": {},
+            "editor.contrib.wordHighlighter": false
+        }
+    },
+    "contexts": [
+        {
+            "state": {
+                "start": 1,
+                "end": 1,
+                "language": "mysql",
+                "result": {
+                    "type": "text",
+                    "text": [
+                        {
+                            "type": 2,
+                            "content": "Welcome to the MySQL Shell - DB Notebook.\n\nPress Ctrl+Enter to execute the code block.\n\nExecute \\sql to switch to SQL, \\js to JavaScript and \\ts to TypeScript mode.\nExecute \\help or \\? for help;",
+                            "language": "ansi"
+                        }
+                    ]
+                },
+                "currentHeight": 28,
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 6
+                        },
+                        "contentStart": 0,
+                        "state": 0
+                    }
+                ]
+            },
+            "data": []
+        },
+        {
+            "state": {
+                "start": 2,
+                "end": 2,
+                "language": "mysql",
+                "result": {
+                    "type": "text",
+                    "text": [
+                        {
+                            "type": 2,
+                            "index": 0,
+                            "resultId": "1420709c-ea8d-4ff3-a45c-fb59e3545bcc",
+                            "content": "OK, 1 row affected in 8.807ms"
+                        }
+                    ]
+                },
+                "currentHeight": 28,
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 28
+                        },
+                        "contentStart": 0,
+                        "state": 0
+                    }
+                ]
+            },
+            "data": []
+        },
+        {
+            "state": {
+                "start": 3,
+                "end": 3,
+                "language": "mysql",
+                "result": {
+                    "type": "text",
+                    "text": [
+                        {
+                            "type": 2,
+                            "index": 0,
+                            "resultId": "5877be23-e91c-47e4-c651-ebd36b1c188f",
+                            "content": "OK, 0 records retrieved in 0.508ms"
+                        }
+                    ]
+                },
+                "currentHeight": 28,
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 16
+                        },
+                        "contentStart": 0,
+                        "state": 0
+                    }
+                ]
+            },
+            "data": []
+        },
+        {
+            "state": {
+                "start": 4,
+                "end": 8,
+                "language": "mysql",
+                "result": {
+                    "type": "text",
+                    "text": [
+                        {
+                            "type": 2,
+                            "index": 0,
+                            "resultId": "b27d10c5-f917-4b8f-d5e1-3e9b41c4235a",
+                            "content": "OK, 0 records retrieved in 23.765ms"
+                        }
+                    ]
+                },
+                "currentHeight": 28,
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 122
+                        },
+                        "contentStart": 0,
+                        "state": 0
+                    }
+                ]
+            },
+            "data": []
+        },
+        {
+            "state": {
+                "start": 9,
+                "end": 12,
+                "language": "mysql",
+                "result": {
+                    "type": "text",
+                    "text": [
+                        {
+                            "type": 2,
+                            "index": 0,
+                            "resultId": "d4117e32-60fa-4ff9-a2d0-9e542ac1faee",
+                            "content": "OK, 0 records retrieved in 21.618ms"
+                        }
+                    ]
+                },
+                "currentHeight": 28,
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 89
+                        },
+                        "contentStart": 0,
+                        "state": 0
+                    }
+                ]
+            },
+            "data": []
+        },
+        {
+            "state": {
+                "start": 13,
+                "end": 19,
+                "language": "mysql",
+                "result": {
+                    "type": "text",
+                    "text": [
+                        {
+                            "type": 2,
+                            "index": 0,
+                            "resultId": "35cf6414-47b7-4423-a8e8-fdb0732954cc",
+                            "content": "OK, 0 records retrieved in 31.218ms"
+                        }
+                    ]
+                },
+                "currentHeight": 28,
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 217
+                        },
+                        "contentStart": 0,
+                        "state": 0
+                    }
+                ]
+            },
+            "data": []
+        },
+        {
+            "state": {
+                "start": 20,
+                "end": 24,
+                "language": "mysql",
+                "result": {
+                    "type": "text",
+                    "text": [
+                        {
+                            "type": 2,
+                            "index": 0,
+                            "resultId": "209e2e15-06d4-40c8-92ff-fba511cf8786",
+                            "content": "OK, 4 rows affected in 6.308ms"
+                        }
+                    ]
+                },
+                "currentHeight": 28,
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 219
+                        },
+                        "contentStart": 0,
+                        "state": 0
+                    }
+                ]
+            },
+            "data": []
+        },
+        {
+            "state": {
+                "start": 25,
+                "end": 30,
+                "language": "mysql",
+                "result": {
+                    "type": "text",
+                    "text": [
+                        {
+                            "type": 2,
+                            "index": 0,
+                            "resultId": "2c4e0d2b-9238-4ce0-a7b8-6c386c858d9d",
+                            "content": "OK, 5 rows affected in 5.569ms"
+                        }
+                    ]
+                },
+                "currentHeight": 28,
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 158
+                        },
+                        "contentStart": 0,
+                        "state": 0
+                    }
+                ]
+            },
+            "data": []
+        },
+        {
+            "state": {
+                "start": 31,
+                "end": 36,
+                "language": "mysql",
+                "result": {
+                    "type": "text",
+                    "text": [
+                        {
+                            "type": 2,
+                            "index": 0,
+                            "resultId": "76bacb87-ba8f-4bf6-bc6e-cf524cb8e26a",
+                            "content": "OK, 5 rows affected in 7.366ms"
+                        }
+                    ]
+                },
+                "currentHeight": 28,
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 112
+                        },
+                        "contentStart": 0,
+                        "state": 0
+                    }
+                ]
+            },
+            "data": []
+        },
+        {
+            "state": {
+                "start": 37,
+                "end": 40,
+                "language": "mysql",
+                "result": {
+                    "type": "resultIds",
+                    "list": [
+                        "2e9ef87f-40c8-4d03-eb53-07a4ed0d2d85"
+                    ]
+                },
+                "currentHeight": 36,
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 135
+                        },
+                        "contentStart": 0,
+                        "state": 0
+                    }
+                ]
+            },
+            "data": [
+                {
+                    "tabId": "7fe1d524-1dd9-4b97-f315-dd6a79f955ca",
+                    "resultId": "2e9ef87f-40c8-4d03-eb53-07a4ed0d2d85",
+                    "rows": [
+                        {
+                            "0": "Eve Carter",
+                            "1": "Project Apollo"
+                        },
+                        {
+                            "0": "Frank Miller",
+                            "1": "Project Apollo"
+                        },
+                        {
+                            "0": "Grace Lee",
+                            "1": "Titanium Build"
+                        },
+                        {
+                            "0": "Henry Ford",
+                            "1": "Nimbus Cloud"
+                        },
+                        {
+                            "0": "Ivy Wilson",
+                            "1": "Project Phoenix"
+                        }
+                    ],
+                    "columns": [
+                        {
+                            "title": "Emp_name",
+                            "field": "0",
+                            "dataType": {
+                                "type": 17,
+                                "characterMaximumLength": 65535,
+                                "flags": [
+                                    "BINARY",
+                                    "ASCII",
+                                    "UNICODE"
+                                ],
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        },
+                        {
+                            "title": "proj_name",
+                            "field": "1",
+                            "dataType": {
+                                "type": 17,
+                                "characterMaximumLength": 65535,
+                                "flags": [
+                                    "BINARY",
+                                    "ASCII",
+                                    "UNICODE"
+                                ],
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        }
+                    ],
+                    "executionInfo": {
+                        "text": "OK, 5 records retrieved in 0.723ms"
+                    },
+                    "totalRowCount": 5,
+                    "hasMoreRows": false,
+                    "currentPage": 0,
+                    "index": 0,
+                    "sql": "SELECT e.Emp_name, p.proj_name\nFROM Employee e\nJOIN Assigned_To a ON e.Emp_id = a.Emp_id\nJOIN Project p ON a.Project_id = p.project_id",
+                    "updatable": false,
+                    "fullTableName": ""
+                }
+            ]
+        },
+        {
+            "state": {
+                "start": 41,
+                "end": 44,
+                "language": "mysql",
+                "result": {
+                    "type": "resultIds",
+                    "list": [
+                        "a0e0ecf3-544c-437c-9571-c3de3335ce83"
+                    ]
+                },
+                "currentHeight": 36,
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 108
+                        },
+                        "contentStart": 0,
+                        "state": 0
+                    }
+                ]
+            },
+            "data": [
+                {
+                    "tabId": "7fe1d524-1dd9-4b97-f315-dd6a79f955ca",
+                    "resultId": "a0e0ecf3-544c-437c-9571-c3de3335ce83",
+                    "rows": [],
+                    "columns": [
+                        {
+                            "title": "*",
+                            "field": "0",
+                            "dataType": {
+                                "type": 0
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        }
+                    ],
+                    "executionInfo": {
+                        "text": "OK, 0 records retrieved in 0.751ms"
+                    },
+                    "totalRowCount": 0,
+                    "hasMoreRows": false,
+                    "currentPage": 0,
+                    "index": 0,
+                    "sql": "SELECT a.Emp_id\nFROM Assigned_To a\nJOIN Project p ON a.Project_id = p.project_id\nWHERE p.proj_name = 'C353'",
+                    "updatable": false,
+                    "fullTableName": ""
+                }
+            ]
+        },
+        {
+            "state": {
+                "start": 45,
+                "end": 48,
+                "language": "mysql",
+                "result": {
+                    "type": "resultIds",
+                    "list": [
+                        "9735f355-cc74-40ab-e639-9c7163769b3a"
+                    ]
+                },
+                "currentHeight": 36,
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 145
+                        },
+                        "contentStart": 0,
+                        "state": 0
+                    }
+                ]
+            },
+            "data": [
+                {
+                    "tabId": "7fe1d524-1dd9-4b97-f315-dd6a79f955ca",
+                    "resultId": "9735f355-cc74-40ab-e639-9c7163769b3a",
+                    "rows": [
+                        {
+                            "0": "Eve Carter",
+                            "1": "Project Apollo"
+                        },
+                        {
+                            "0": "Frank Miller",
+                            "1": "Project Apollo"
+                        },
+                        {
+                            "0": "Grace Lee",
+                            "1": "Titanium Build"
+                        },
+                        {
+                            "0": "Henry Ford",
+                            "1": "Nimbus Cloud"
+                        },
+                        {
+                            "0": "Ivy Wilson",
+                            "1": "Project Phoenix"
+                        }
+                    ],
+                    "columns": [
+                        {
+                            "title": "Emp_name",
+                            "field": "0",
+                            "dataType": {
+                                "type": 17,
+                                "characterMaximumLength": 65535,
+                                "flags": [
+                                    "BINARY",
+                                    "ASCII",
+                                    "UNICODE"
+                                ],
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        },
+                        {
+                            "title": "proj_name",
+                            "field": "1",
+                            "dataType": {
+                                "type": 17,
+                                "characterMaximumLength": 65535,
+                                "flags": [
+                                    "BINARY",
+                                    "ASCII",
+                                    "UNICODE"
+                                ],
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        }
+                    ],
+                    "executionInfo": {
+                        "text": "OK, 5 records retrieved in 0.584ms"
+                    },
+                    "totalRowCount": 5,
+                    "hasMoreRows": false,
+                    "currentPage": 0,
+                    "index": 0,
+                    "sql": "SELECT e.Emp_name, p.proj_name\nFROM Employee e\nLEFT JOIN Assigned_To a ON e.Emp_id = a.Emp_id\nLEFT JOIN Project p ON a.Project_id = p.project_id",
+                    "updatable": false,
+                    "fullTableName": ""
+                }
+            ]
+        },
+        {
+            "state": {
+                "start": 49,
+                "end": 52,
+                "language": "mysql",
+                "result": {
+                    "type": "resultIds",
+                    "list": [
+                        "f9e9860a-857f-4179-faaa-cead795c26d9"
+                    ]
+                },
+                "currentHeight": 36,
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 145
+                        },
+                        "contentStart": 0,
+                        "state": 0
+                    },
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 145,
+                            "length": 0
+                        },
+                        "contentStart": 145,
+                        "state": 3
+                    }
+                ]
+            },
+            "data": [
+                {
+                    "tabId": "7fe1d524-1dd9-4b97-f315-dd6a79f955ca",
+                    "resultId": "f9e9860a-857f-4179-faaa-cead795c26d9",
+                    "rows": [
+                        {
+                            "0": "Project Apollo",
+                            "1": "Eve Carter"
+                        },
+                        {
+                            "0": "Project Apollo",
+                            "1": "Frank Miller"
+                        },
+                        {
+                            "0": "Titanium Build",
+                            "1": "Grace Lee"
+                        },
+                        {
+                            "0": "Nimbus Cloud",
+                            "1": "Henry Ford"
+                        },
+                        {
+                            "0": "Project Phoenix",
+                            "1": "Ivy Wilson"
+                        }
+                    ],
+                    "columns": [
+                        {
+                            "title": "proj_name",
+                            "field": "0",
+                            "dataType": {
+                                "type": 17,
+                                "characterMaximumLength": 65535,
+                                "flags": [
+                                    "BINARY",
+                                    "ASCII",
+                                    "UNICODE"
+                                ],
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        },
+                        {
+                            "title": "Emp_name",
+                            "field": "1",
+                            "dataType": {
+                                "type": 17,
+                                "characterMaximumLength": 65535,
+                                "flags": [
+                                    "BINARY",
+                                    "ASCII",
+                                    "UNICODE"
+                                ],
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        }
+                    ],
+                    "executionInfo": {
+                        "text": "OK, 5 records retrieved in 1.031ms"
+                    },
+                    "totalRowCount": 5,
+                    "hasMoreRows": false,
+                    "currentPage": 0,
+                    "index": 0,
+                    "sql": "SELECT p.proj_name, e.Emp_name\nFROM Project p\nLEFT JOIN Assigned_To a ON p.project_id = a.Project_id\nLEFT JOIN Employee e ON a.Emp_id = e.Emp_id",
+                    "updatable": false,
+                    "fullTableName": ""
+                }
+            ]
+        },
+        {
+            "state": {
+                "start": 53,
+                "end": 63,
+                "language": "mysql",
+                "result": {
+                    "type": "resultIds",
+                    "list": [
+                        "03ee0578-a0bf-418f-a6ba-c83b4fc06bd0"
+                    ]
+                },
+                "currentHeight": 36,
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 298
+                        },
+                        "contentStart": 0,
+                        "state": 0
+                    }
+                ]
+            },
+            "data": [
+                {
+                    "tabId": "7fe1d524-1dd9-4b97-f315-dd6a79f955ca",
+                    "resultId": "03ee0578-a0bf-418f-a6ba-c83b4fc06bd0",
+                    "rows": [
+                        {
+                            "0": "Eve Carter",
+                            "1": "Project Apollo"
+                        },
+                        {
+                            "0": "Frank Miller",
+                            "1": "Project Apollo"
+                        },
+                        {
+                            "0": "Grace Lee",
+                            "1": "Titanium Build"
+                        },
+                        {
+                            "0": "Henry Ford",
+                            "1": "Nimbus Cloud"
+                        },
+                        {
+                            "0": "Ivy Wilson",
+                            "1": "Project Phoenix"
+                        }
+                    ],
+                    "columns": [
+                        {
+                            "title": "Emp_name",
+                            "field": "0",
+                            "dataType": {
+                                "type": 17,
+                                "characterMaximumLength": 65535,
+                                "flags": [
+                                    "BINARY",
+                                    "ASCII",
+                                    "UNICODE"
+                                ],
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        },
+                        {
+                            "title": "proj_name",
+                            "field": "1",
+                            "dataType": {
+                                "type": 17,
+                                "characterMaximumLength": 65535,
+                                "flags": [
+                                    "BINARY",
+                                    "ASCII",
+                                    "UNICODE"
+                                ],
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        }
+                    ],
+                    "executionInfo": {
+                        "text": "OK, 5 records retrieved in 1.045ms"
+                    },
+                    "totalRowCount": 5,
+                    "hasMoreRows": false,
+                    "currentPage": 0,
+                    "index": 0,
+                    "sql": "SELECT e.Emp_name, p.proj_name\nFROM Employee e\nLEFT JOIN Assigned_To a ON e.Emp_id = a.Emp_id\nLEFT JOIN Project p ON a.Project_id = p.project_id\n\nUNION\n\nSELECT e.Emp_name, p.proj_name\nFROM Project p\nLEFT JOIN Assigned_To a ON p.project_id = a.Project_id\nLEFT JOIN Employee e ON a.Emp_id = e.Emp_id",
+                    "updatable": false,
+                    "fullTableName": ""
+                }
+            ]
+        },
+        {
+            "state": {
+                "start": 64,
+                "end": 73,
+                "language": "mysql",
+                "result": {
+                    "type": "resultIds",
+                    "list": [
+                        "9e2169d3-921c-41c1-d952-202dd187f692"
+                    ]
+                },
+                "currentHeight": 36,
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 254
+                        },
+                        "contentStart": 0,
+                        "state": 0
+                    }
+                ]
+            },
+            "data": [
+                {
+                    "tabId": "7fe1d524-1dd9-4b97-f315-dd6a79f955ca",
+                    "resultId": "9e2169d3-921c-41c1-d952-202dd187f692",
+                    "rows": [
+                        {
+                            "0": "Eve Carter",
+                            "1": "Project Apollo",
+                            "2": "No"
+                        },
+                        {
+                            "0": "Frank Miller",
+                            "1": "Project Apollo",
+                            "2": "No"
+                        },
+                        {
+                            "0": "Grace Lee",
+                            "1": "Titanium Build",
+                            "2": "No"
+                        },
+                        {
+                            "0": "Henry Ford",
+                            "1": "Nimbus Cloud",
+                            "2": "No"
+                        },
+                        {
+                            "0": "Ivy Wilson",
+                            "1": "Project Phoenix",
+                            "2": "No"
+                        }
+                    ],
+                    "columns": [
+                        {
+                            "title": "Emp_name",
+                            "field": "0",
+                            "dataType": {
+                                "type": 17,
+                                "characterMaximumLength": 65535,
+                                "flags": [
+                                    "BINARY",
+                                    "ASCII",
+                                    "UNICODE"
+                                ],
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        },
+                        {
+                            "title": "proj_name",
+                            "field": "1",
+                            "dataType": {
+                                "type": 17,
+                                "characterMaximumLength": 65535,
+                                "flags": [
+                                    "BINARY",
+                                    "ASCII",
+                                    "UNICODE"
+                                ],
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        },
+                        {
+                            "title": "is_chief_architect",
+                            "field": "2",
+                            "dataType": {
+                                "type": 17,
+                                "characterMaximumLength": 65535,
+                                "flags": [
+                                    "BINARY",
+                                    "ASCII",
+                                    "UNICODE"
+                                ],
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        }
+                    ],
+                    "executionInfo": {
+                        "text": "OK, 5 records retrieved in 0.751ms"
+                    },
+                    "totalRowCount": 5,
+                    "hasMoreRows": false,
+                    "currentPage": 0,
+                    "index": 0,
+                    "sql": "SELECT \n    e.Emp_name, \n    p.proj_name,\n    CASE \n        WHEN e.Emp_name = p.chief_arch THEN 'Yes'\n        ELSE 'No'\n    END AS is_chief_architect\nFROM Employee e\nJOIN Assigned_To a ON e.Emp_id = a.Emp_id\nJOIN Project p ON a.Project_id = p.project_id",
+                    "updatable": false,
+                    "fullTableName": ""
+                }
+            ]
+        },
+        {
+            "state": {
+                "start": 74,
+                "end": 79,
+                "language": "mysql",
+                "result": {
+                    "type": "text",
+                    "text": [
+                        {
+                            "type": 2,
+                            "index": 0,
+                            "resultId": "22b6a42a-9f7c-407f-d0b2-84d15a3d4c2d",
+                            "content": "OK, 0 records retrieved in 31.644ms"
+                        }
+                    ]
+                },
+                "currentHeight": 28,
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 197
+                        },
+                        "contentStart": 0,
+                        "state": 0
+                    }
+                ]
+            },
+            "data": []
+        },
+        {
+            "state": {
+                "start": 80,
+                "end": 83,
+                "language": "mysql",
+                "result": {
+                    "type": "text",
+                    "text": [
+                        {
+                            "type": 2,
+                            "index": 0,
+                            "resultId": "3868d808-17d8-4fe4-d853-93b2661ea617",
+                            "content": "OK, 0 records retrieved in 24.834ms"
+                        }
+                    ]
+                },
+                "currentHeight": 28,
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 92
+                        },
+                        "contentStart": 0,
+                        "state": 0
+                    }
+                ]
+            },
+            "data": []
+        },
+        {
+            "state": {
+                "start": 84,
+                "end": 87,
+                "language": "mysql",
+                "result": {
+                    "type": "text",
+                    "text": [
+                        {
+                            "type": 2,
+                            "index": 0,
+                            "resultId": "92ad05fc-62ea-4552-b1ea-df9dad5ced66",
+                            "content": "OK, 0 records retrieved in 28.785ms"
+                        }
+                    ]
+                },
+                "currentHeight": 28,
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 84
+                        },
+                        "contentStart": 0,
+                        "state": 0
+                    }
+                ]
+            },
+            "data": []
+        },
+        {
+            "state": {
+                "start": 88,
+                "end": 98,
+                "language": "mysql",
+                "result": {
+                    "type": "text",
+                    "text": [
+                        {
+                            "type": 2,
+                            "index": 0,
+                            "resultId": "9c175c32-8801-4b89-82f7-47a49f165065",
+                            "content": "OK, 0 records retrieved in 43.049ms"
+                        }
+                    ]
+                },
+                "currentHeight": 28,
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 343
+                        },
+                        "contentStart": 0,
+                        "state": 0
+                    }
+                ]
+            },
+            "data": []
+        },
+        {
+            "state": {
+                "start": 99,
+                "end": 125,
+                "language": "mysql",
+                "result": {
+                    "type": "text",
+                    "text": [
+                        {
+                            "type": 2,
+                            "index": 0,
+                            "resultId": "6012647d-2551-4565-8df8-304d99d94f53",
+                            "content": "OK, 5 rows affected in 7.208ms"
+                        },
+                        {
+                            "type": 2,
+                            "index": 1,
+                            "resultId": "1f9be9db-6ad3-4205-f092-46a2afc0d1d5",
+                            "content": "OK, 5 rows affected in 6.682ms"
+                        },
+                        {
+                            "type": 2,
+                            "index": 2,
+                            "resultId": "b81ee48d-b655-4a14-9954-070f9285b985",
+                            "content": "OK, 5 rows affected in 6.21ms"
+                        },
+                        {
+                            "type": 2,
+                            "index": 3,
+                            "resultId": "008ac4c5-e44b-4bc2-f577-ce5811a877e5",
+                            "content": "OK, 5 rows affected in 7.162ms"
+                        }
+                    ]
+                },
+                "currentHeight": 28,
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 156
+                        },
+                        "contentStart": 0,
+                        "state": 0
+                    },
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 156,
+                            "length": 165
+                        },
+                        "contentStart": 158,
+                        "state": 0
+                    },
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 321,
+                            "length": 313
+                        },
+                        "contentStart": 323,
+                        "state": 0
+                    },
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 634,
+                            "length": 341
+                        },
+                        "contentStart": 636,
+                        "state": 0
+                    }
+                ]
+            },
+            "data": []
+        },
+        {
+            "state": {
+                "start": 126,
+                "end": 129,
+                "language": "mysql",
+                "result": {
+                    "type": "resultIds",
+                    "list": [
+                        "1d71d704-2cfb-41fb-85a6-04664149b837"
+                    ]
+                },
+                "currentHeight": 36,
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 109
+                        },
+                        "contentStart": 0,
+                        "state": 0
+                    }
+                ]
+            },
+            "data": [
+                {
+                    "tabId": "7fe1d524-1dd9-4b97-f315-dd6a79f955ca",
+                    "resultId": "1d71d704-2cfb-41fb-85a6-04664149b837",
+                    "rows": [
+                        {
+                            "0": "Rajesh Kumar"
+                        },
+                        {
+                            "0": "Suresh Singh"
+                        },
+                        {
+                            "0": "Amit Patel"
+                        },
+                        {
+                            "0": "Vikram Sharma"
+                        },
+                        {
+                            "0": "Manoj Desai"
+                        }
+                    ],
+                    "columns": [
+                        {
+                            "title": "DRIVER_NAME",
+                            "field": "0",
+                            "dataType": {
+                                "type": 17,
+                                "characterMaximumLength": 65535,
+                                "flags": [
+                                    "BINARY",
+                                    "ASCII",
+                                    "UNICODE"
+                                ],
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        }
+                    ],
+                    "executionInfo": {
+                        "text": "OK, 5 records retrieved in 0.815ms"
+                    },
+                    "totalRowCount": 5,
+                    "hasMoreRows": false,
+                    "currentPage": 0,
+                    "index": 0,
+                    "sql": "SELECT DISTINCT t.DRIVER_NAME\nFROM TRUCK t\nJOIN SHIPMENT s ON t.`TRUCK_#` = s.`TRUCK_#`\nWHERE s.WEIGHT > 100",
+                    "updatable": false,
+                    "fullTableName": ""
+                }
+            ]
+        },
+        {
+            "state": {
+                "start": 130,
+                "end": 138,
+                "language": "mysql",
+                "result": {
+                    "type": "resultIds",
+                    "list": [
+                        "052fea1b-8926-4ef9-e80d-46984e6fb629"
+                    ]
+                },
+                "currentHeight": 36,
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 216
+                        },
+                        "contentStart": 0,
+                        "state": 0
+                    }
+                ]
+            },
+            "data": [
+                {
+                    "tabId": "7fe1d524-1dd9-4b97-f315-dd6a79f955ca",
+                    "resultId": "052fea1b-8926-4ef9-e80d-46984e6fb629",
+                    "rows": [
+                        {
+                            "0": 1001,
+                            "1": "Tata Motors",
+                            "2": "Rajesh Kumar",
+                            "3": "Mumbai"
+                        },
+                        {
+                            "0": 1003,
+                            "1": "Metro Cash & Carry",
+                            "2": "Amit Patel",
+                            "3": "Delhi"
+                        },
+                        {
+                            "0": 1004,
+                            "1": "Bajaj Auto",
+                            "2": "Vikram Sharma",
+                            "3": "Bangalore"
+                        }
+                    ],
+                    "columns": [
+                        {
+                            "title": "SHIPMENT_#",
+                            "field": "0",
+                            "dataType": {
+                                "type": 4,
+                                "flags": [
+                                    "SIGNED",
+                                    "ZEROFILL"
+                                ],
+                                "numericPrecision": 10,
+                                "parameterFormatType": "OneOrZero",
+                                "synonyms": [
+                                    "INTEGER",
+                                    "INT4"
+                                ]
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        },
+                        {
+                            "title": "CUST_NAME",
+                            "field": "1",
+                            "dataType": {
+                                "type": 17,
+                                "characterMaximumLength": 65535,
+                                "flags": [
+                                    "BINARY",
+                                    "ASCII",
+                                    "UNICODE"
+                                ],
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        },
+                        {
+                            "title": "DRIVER_NAME",
+                            "field": "2",
+                            "dataType": {
+                                "type": 17,
+                                "characterMaximumLength": 65535,
+                                "flags": [
+                                    "BINARY",
+                                    "ASCII",
+                                    "UNICODE"
+                                ],
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        },
+                        {
+                            "title": "CITY_NAME",
+                            "field": "3",
+                            "dataType": {
+                                "type": 17,
+                                "characterMaximumLength": 65535,
+                                "flags": [
+                                    "BINARY",
+                                    "ASCII",
+                                    "UNICODE"
+                                ],
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        }
+                    ],
+                    "executionInfo": {
+                        "text": "OK, 3 records retrieved in 1.064ms"
+                    },
+                    "totalRowCount": 3,
+                    "hasMoreRows": false,
+                    "currentPage": 0,
+                    "index": 0,
+                    "sql": "SELECT \n    s.`SHIPMENT_#`,\n    c.CUST_NAME,\n    t.DRIVER_NAME,\n    s.DESTINATION AS CITY_NAME\nFROM SHIPMENT s\nJOIN CUSTOMER c ON s.CUST_ID = c.CUST_ID\nJOIN TRUCK t ON s.`TRUCK_#` = t.`TRUCK_#`\nWHERE s.WEIGHT > 1000",
+                    "updatable": false,
+                    "fullTableName": ""
+                }
+            ]
+        },
+        {
+            "state": {
+                "start": 139,
+                "end": 147,
+                "language": "mysql",
+                "result": {
+                    "type": "resultIds",
+                    "list": [
+                        "baf96dee-d4cc-4b7a-bee5-4a1032b7a5e8"
+                    ]
+                },
+                "currentHeight": 36,
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 225
+                        },
+                        "contentStart": 0,
+                        "state": 0
+                    }
+                ]
+            },
+            "data": [
+                {
+                    "tabId": "7fe1d524-1dd9-4b97-f315-dd6a79f955ca",
+                    "resultId": "baf96dee-d4cc-4b7a-bee5-4a1032b7a5e8",
+                    "rows": [
+                        {
+                            "0": 101,
+                            "1": "Rajesh Kumar",
+                            "2": 1001,
+                            "3": "Tata Motors",
+                            "4": "Mumbai"
+                        },
+                        {
+                            "0": 102,
+                            "1": "Suresh Singh",
+                            "2": 1002,
+                            "3": "Reliance Retail",
+                            "4": "Pune"
+                        },
+                        {
+                            "0": 103,
+                            "1": "Amit Patel",
+                            "2": 1003,
+                            "3": "Metro Cash & Carry",
+                            "4": "Delhi"
+                        },
+                        {
+                            "0": 104,
+                            "1": "Vikram Sharma",
+                            "2": 1004,
+                            "3": "Bajaj Auto",
+                            "4": "Bangalore"
+                        },
+                        {
+                            "0": 105,
+                            "1": "Manoj Desai",
+                            "2": 1005,
+                            "3": "D-Mart",
+                            "4": "Chennai"
+                        }
+                    ],
+                    "columns": [
+                        {
+                            "title": "TRUCK_#",
+                            "field": "0",
+                            "dataType": {
+                                "type": 4,
+                                "flags": [
+                                    "SIGNED",
+                                    "ZEROFILL"
+                                ],
+                                "numericPrecision": 10,
+                                "parameterFormatType": "OneOrZero",
+                                "synonyms": [
+                                    "INTEGER",
+                                    "INT4"
+                                ]
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        },
+                        {
+                            "title": "DRIVER_NAME",
+                            "field": "1",
+                            "dataType": {
+                                "type": 17,
+                                "characterMaximumLength": 65535,
+                                "flags": [
+                                    "BINARY",
+                                    "ASCII",
+                                    "UNICODE"
+                                ],
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        },
+                        {
+                            "title": "SHIPMENT_#",
+                            "field": "2",
+                            "dataType": {
+                                "type": 4,
+                                "flags": [
+                                    "SIGNED",
+                                    "ZEROFILL"
+                                ],
+                                "numericPrecision": 10,
+                                "parameterFormatType": "OneOrZero",
+                                "synonyms": [
+                                    "INTEGER",
+                                    "INT4"
+                                ]
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        },
+                        {
+                            "title": "CUST_NAME",
+                            "field": "3",
+                            "dataType": {
+                                "type": 17,
+                                "characterMaximumLength": 65535,
+                                "flags": [
+                                    "BINARY",
+                                    "ASCII",
+                                    "UNICODE"
+                                ],
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        },
+                        {
+                            "title": "CITY_NAME",
+                            "field": "4",
+                            "dataType": {
+                                "type": 17,
+                                "characterMaximumLength": 65535,
+                                "flags": [
+                                    "BINARY",
+                                    "ASCII",
+                                    "UNICODE"
+                                ],
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        }
+                    ],
+                    "executionInfo": {
+                        "text": "OK, 5 records retrieved in 0.703ms"
+                    },
+                    "totalRowCount": 5,
+                    "hasMoreRows": false,
+                    "currentPage": 0,
+                    "index": 0,
+                    "sql": "SELECT \n    t.`TRUCK_#`, \n    t.DRIVER_NAME, \n    s.`SHIPMENT_#`, \n    c.CUST_NAME, \n    s.DESTINATION AS CITY_NAME\nFROM TRUCK t\nLEFT JOIN SHIPMENT s ON t.`TRUCK_#` = s.`TRUCK_#`\nLEFT JOIN CUSTOMER c ON s.CUST_ID = c.CUST_ID",
+                    "updatable": false,
+                    "fullTableName": ""
+                }
+            ]
+        },
+        {
+            "state": {
+                "start": 148,
+                "end": 157,
+                "language": "mysql",
+                "result": {
+                    "type": "resultIds",
+                    "list": [
+                        "83526e01-c52a-4cfc-f5d6-4b738d77c482"
+                    ]
+                },
+                "currentHeight": 186.265625,
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 226
+                        },
+                        "contentStart": 1,
+                        "state": 0
+                    }
+                ]
+            },
+            "data": [
+                {
+                    "tabId": "7fe1d524-1dd9-4b97-f315-dd6a79f955ca",
+                    "resultId": "83526e01-c52a-4cfc-f5d6-4b738d77c482",
+                    "rows": [
+                        {
+                            "0": 101,
+                            "1": "Rajesh Kumar",
+                            "2": 1001,
+                            "3": "Tata Motors",
+                            "4": "Mumbai"
+                        },
+                        {
+                            "0": 102,
+                            "1": "Suresh Singh",
+                            "2": 1002,
+                            "3": "Reliance Retail",
+                            "4": "Pune"
+                        },
+                        {
+                            "0": 103,
+                            "1": "Amit Patel",
+                            "2": 1003,
+                            "3": "Metro Cash & Carry",
+                            "4": "Delhi"
+                        },
+                        {
+                            "0": 104,
+                            "1": "Vikram Sharma",
+                            "2": 1004,
+                            "3": "Bajaj Auto",
+                            "4": "Bangalore"
+                        },
+                        {
+                            "0": 105,
+                            "1": "Manoj Desai",
+                            "2": 1005,
+                            "3": "D-Mart",
+                            "4": "Chennai"
+                        }
+                    ],
+                    "columns": [
+                        {
+                            "title": "TRUCK_#",
+                            "field": "0",
+                            "dataType": {
+                                "type": 4,
+                                "flags": [
+                                    "SIGNED",
+                                    "ZEROFILL"
+                                ],
+                                "numericPrecision": 10,
+                                "parameterFormatType": "OneOrZero",
+                                "synonyms": [
+                                    "INTEGER",
+                                    "INT4"
+                                ]
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        },
+                        {
+                            "title": "DRIVER_NAME",
+                            "field": "1",
+                            "dataType": {
+                                "type": 17,
+                                "characterMaximumLength": 65535,
+                                "flags": [
+                                    "BINARY",
+                                    "ASCII",
+                                    "UNICODE"
+                                ],
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        },
+                        {
+                            "title": "SHIPMENT_#",
+                            "field": "2",
+                            "dataType": {
+                                "type": 4,
+                                "flags": [
+                                    "SIGNED",
+                                    "ZEROFILL"
+                                ],
+                                "numericPrecision": 10,
+                                "parameterFormatType": "OneOrZero",
+                                "synonyms": [
+                                    "INTEGER",
+                                    "INT4"
+                                ]
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        },
+                        {
+                            "title": "CUST_NAME",
+                            "field": "3",
+                            "dataType": {
+                                "type": 17,
+                                "characterMaximumLength": 65535,
+                                "flags": [
+                                    "BINARY",
+                                    "ASCII",
+                                    "UNICODE"
+                                ],
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        },
+                        {
+                            "title": "CITY_NAME",
+                            "field": "4",
+                            "dataType": {
+                                "type": 17,
+                                "characterMaximumLength": 65535,
+                                "flags": [
+                                    "BINARY",
+                                    "ASCII",
+                                    "UNICODE"
+                                ],
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        }
+                    ],
+                    "executionInfo": {
+                        "text": "OK, 5 records retrieved in 0.606ms"
+                    },
+                    "totalRowCount": 5,
+                    "hasMoreRows": false,
+                    "currentPage": 0,
+                    "index": 0,
+                    "sql": "\nSELECT \n    t.`TRUCK_#`, \n    t.DRIVER_NAME, \n    s.`SHIPMENT_#`, \n    c.CUST_NAME, \n    s.DESTINATION AS CITY_NAME\nFROM TRUCK t\nLEFT JOIN SHIPMENT s ON t.`TRUCK_#` = s.`TRUCK_#`\nLEFT JOIN CUSTOMER c ON s.CUST_ID = c.CUST_ID",
+                    "updatable": false,
+                    "fullTableName": ""
+                }
+            ]
+        },
+        {
+            "state": {
+                "start": 158,
+                "end": 174,
+                "language": "mysql",
+                "result": {
+                    "type": "resultIds",
+                    "list": [
+                        "56edc953-206b-43c0-d6aa-86ce34eda235"
+                    ]
+                },
+                "currentHeight": 186.265625,
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 368
+                        },
+                        "contentStart": 0,
+                        "state": 0
+                    }
+                ]
+            },
+            "data": [
+                {
+                    "tabId": "7fe1d524-1dd9-4b97-f315-dd6a79f955ca",
+                    "resultId": "56edc953-206b-43c0-d6aa-86ce34eda235",
+                    "rows": [
+                        {
+                            "0": 1001,
+                            "1": "1500.50",
+                            "2": "Mumbai",
+                            "3": "Mumbai"
+                        },
+                        {
+                            "0": 1002,
+                            "1": "850.00",
+                            "2": "Pune",
+                            "3": "Pune"
+                        },
+                        {
+                            "0": 1003,
+                            "1": "2200.75",
+                            "2": "Delhi",
+                            "3": "Delhi"
+                        },
+                        {
+                            "0": 1004,
+                            "1": "1100.00",
+                            "2": "Bangalore",
+                            "3": "Bangalore"
+                        },
+                        {
+                            "0": 1005,
+                            "1": "950.25",
+                            "2": "Chennai",
+                            "3": "Chennai"
+                        }
+                    ],
+                    "columns": [
+                        {
+                            "title": "SHIPMENT_#",
+                            "field": "0",
+                            "dataType": {
+                                "type": 4,
+                                "flags": [
+                                    "SIGNED",
+                                    "ZEROFILL"
+                                ],
+                                "numericPrecision": 10,
+                                "parameterFormatType": "OneOrZero",
+                                "synonyms": [
+                                    "INTEGER",
+                                    "INT4"
+                                ]
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        },
+                        {
+                            "title": "WEIGHT",
+                            "field": "1",
+                            "dataType": {
+                                "type": 10,
+                                "flags": [
+                                    "UNSIGNED",
+                                    "ZEROFILL"
+                                ],
+                                "numericPrecision": 65,
+                                "numericScale": 30,
+                                "parameterFormatType": "TwoOrOneOrZero",
+                                "synonyms": [
+                                    "FIXED",
+                                    "NUMERIC",
+                                    "DEC"
+                                ]
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        },
+                        {
+                            "title": "SHIPMENT_CITY",
+                            "field": "2",
+                            "dataType": {
+                                "type": 17,
+                                "characterMaximumLength": 65535,
+                                "flags": [
+                                    "BINARY",
+                                    "ASCII",
+                                    "UNICODE"
+                                ],
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        },
+                        {
+                            "title": "REGISTERED_CITY",
+                            "field": "3",
+                            "dataType": {
+                                "type": 17,
+                                "characterMaximumLength": 65535,
+                                "flags": [
+                                    "BINARY",
+                                    "ASCII",
+                                    "UNICODE"
+                                ],
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        }
+                    ],
+                    "executionInfo": {
+                        "text": "OK, 5 records retrieved in 1.386ms"
+                    },
+                    "totalRowCount": 5,
+                    "hasMoreRows": false,
+                    "currentPage": 0,
+                    "index": 0,
+                    "sql": "SELECT \n    s.`SHIPMENT_#`, \n    s.WEIGHT, \n    s.DESTINATION AS SHIPMENT_CITY, \n    c.CITY_NAME AS REGISTERED_CITY\nFROM SHIPMENT s\nLEFT JOIN CITY c ON s.DESTINATION = c.CITY_NAME\n\nUNION\n\nSELECT \n    s.`SHIPMENT_#`, \n    s.WEIGHT, \n    s.DESTINATION AS SHIPMENT_CITY, \n    c.CITY_NAME AS REGISTERED_CITY\nFROM CITY c\nLEFT JOIN SHIPMENT s ON c.CITY_NAME = s.DESTINATION",
+                    "updatable": false,
+                    "fullTableName": ""
+                }
+            ]
+        },
+        {
+            "state": {
+                "start": 175,
+                "end": 175,
+                "language": "mysql",
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 0
+                        },
+                        "contentStart": 0,
+                        "state": 0
+                    }
+                ]
+            },
+            "data": []
+        }
+    ]
+}
