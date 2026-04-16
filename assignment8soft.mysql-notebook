@@ -1,0 +1,894 @@
+{
+    "type": "MySQLNotebook",
+    "version": "1.0",
+    "caption": "DB Notebook",
+    "content": "use assignment8;\nCREATE TABLE drive (\n    drive_name VARCHAR(50),\n    directory_name VARCHAR(100),\n    file_name VARCHAR(255)\n);\n\nCREATE TABLE file (\n    file_name VARCHAR(255) PRIMARY KEY,\n    time_of_creation DATETIME,\n    time_of_last_access DATETIME,\n    size_of_file INT,\n    file_format VARCHAR(10)\n);\n\nCREATE TABLE log_ (\n    file_name VARCHAR(255),\n    time_of_creation DATETIME,\n    time_of_last_access DATETIME,\n    size_of_file INT,\n    file_format VARCHAR(10),\n    logged_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP\n);\nDELIMITER //\n\nCREATE PROCEDURE ProcessFileEntry(IN input_name VARCHAR(255))\nBEGIN\n    -- Variables to hold data fetched by the cursor\n    DECLARE f_name VARCHAR(255);\n    DECLARE f_creation DATETIME;\n    DECLARE f_access DATETIME;\n    DECLARE f_size INT;\n    DECLARE f_format VARCHAR(10);\n    DECLARE done INT DEFAULT FALSE;\n    DECLARE file_cursor CURSOR FOR \n        SELECT f.file_name, f.time_of_creation, f.time_of_last_access, f.size_of_file, f.file_format\n        FROM file f\n        INNER JOIN drive d ON f.file_name = d.file_name\n        WHERE f.file_name = input_name;\n\n    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;\n\n    OPEN file_cursor;\n\n    read_loop: LOOP\n        FETCH file_cursor INTO f_name, f_creation, f_access, f_size, f_format;\n        \n        IF done THEN\n            LEAVE read_loop;\n        END IF;\n\n        INSERT INTO log_ (file_name, time_of_creation, time_of_last_access, size_of_file, file_format)\n        VALUES (f_name, f_creation, f_access, f_size, f_format);\n        \n    END LOOP;\n\n    CLOSE file_cursor;\nEND //\n\nDELIMITER ;\nINSERT INTO file VALUES ('data.txt', '2023-01-01 10:00:00', NOW(), 2048, 'txt');\nINSERT INTO drive VALUES ('C:', 'Users/Admin', 'data.txt');\nCALL ProcessFileEntry('data.txt');\nSELECT * FROM log_;\nCREATE TABLE BOOK (\n    Isbn VARCHAR(20) PRIMARY KEY,\n    Title VARCHAR(255),\n    SoldCopies INT DEFAULT 0\n);\n\nCREATE TABLE AUTHOR (\n    Name VARCHAR(100) PRIMARY KEY,\n    SoldCopies INT DEFAULT 0\n);\n\nCREATE TABLE WRITING (\n    Isbn VARCHAR(20),\n    Name VARCHAR(100),\n    PRIMARY KEY (Isbn, Name),\n    FOREIGN KEY (Isbn) REFERENCES BOOK(Isbn),\n    FOREIGN KEY (Name) REFERENCES AUTHOR(Name)\n);\nDELIMITER //\n\nCREATE TRIGGER after_book_sales_update\nAFTER UPDATE ON BOOK\nFOR EACH ROW\nBEGIN\n    IF OLD.SoldCopies <> NEW.SoldCopies THEN\n        UPDATE AUTHOR \n        SET SoldCopies = SoldCopies + (NEW.SoldCopies - OLD.SoldCopies)\n        WHERE Name IN (SELECT Name FROM WRITING WHERE Isbn = NEW.Isbn);\n    END IF;\nEND //\n\nDELIMITER ;\nDELIMITER //\n\nCREATE TRIGGER after_writing_insert\nAFTER INSERT ON WRITING\nFOR EACH ROW\nBEGIN\n    UPDATE AUTHOR a\n    SET a.SoldCopies = a.SoldCopies + (\n        SELECT COALESCE(b.SoldCopies, 0) \n        FROM BOOK b \n        WHERE b.Isbn = NEW.Isbn\n    )\n    WHERE a.Name = NEW.Name;\nEND //\n\nDELIMITER ;\nINSERT INTO AUTHOR (Name, SoldCopies) VALUES ('J.K. Rowling', 0);\nINSERT INTO BOOK (Isbn, Title, SoldCopies) VALUES ('123-ABC', 'Harry Potter', 500);\nINSERT INTO WRITING (Isbn, Name) VALUES ('123-ABC', 'J.K. Rowling');\nSELECT * FROM AUTHOR;\nUPDATE BOOK SET SoldCopies = 600 WHERE Isbn = '123-ABC';\nSELECT * FROM AUTHOR;\n",
+    "options": {
+        "tabSize": 4,
+        "indentSize": 4,
+        "insertSpaces": true,
+        "defaultEOL": "LF",
+        "trimAutoWhitespace": true
+    },
+    "viewState": {
+        "cursorState": [
+            {
+                "inSelectionMode": false,
+                "selectionStart": {
+                    "lineNumber": 119,
+                    "column": 1
+                },
+                "position": {
+                    "lineNumber": 119,
+                    "column": 1
+                }
+            }
+        ],
+        "viewState": {
+            "scrollLeft": 0,
+            "firstPosition": {
+                "lineNumber": 73,
+                "column": 1
+            },
+            "firstPositionDeltaTop": -20
+        },
+        "contributionsState": {
+            "editor.contrib.folding": {},
+            "editor.contrib.wordHighlighter": false
+        }
+    },
+    "contexts": [
+        {
+            "state": {
+                "start": 1,
+                "end": 1,
+                "language": "mysql",
+                "result": {
+                    "type": "text",
+                    "text": [
+                        {
+                            "type": 2,
+                            "index": 0,
+                            "resultId": "a4d12fb5-c1ba-439f-d728-14716680dabd",
+                            "content": "OK, 0 records retrieved in 1.176ms"
+                        }
+                    ]
+                },
+                "currentHeight": 28,
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 16
+                        },
+                        "contentStart": 0,
+                        "state": 0
+                    }
+                ]
+            },
+            "data": []
+        },
+        {
+            "state": {
+                "start": 2,
+                "end": 23,
+                "language": "mysql",
+                "result": {
+                    "type": "text",
+                    "text": [
+                        {
+                            "type": 2,
+                            "index": 0,
+                            "resultId": "bbac7cf0-9b1b-450f-a218-d5d8ca77d0a3",
+                            "content": "OK, 0 records retrieved in 37.737ms"
+                        },
+                        {
+                            "type": 2,
+                            "index": 1,
+                            "resultId": "05d04921-bb0c-4e0d-952b-92c3652a111a",
+                            "content": "OK, 0 records retrieved in 36.316ms"
+                        },
+                        {
+                            "type": 2,
+                            "index": 2,
+                            "resultId": "0fc31e3b-6e6d-4254-ad1c-ae889b046881",
+                            "content": "OK, 0 records retrieved in 35.079ms"
+                        }
+                    ]
+                },
+                "currentHeight": 28,
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 111
+                        },
+                        "contentStart": 0,
+                        "state": 0
+                    },
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 111,
+                            "length": 179
+                        },
+                        "contentStart": 113,
+                        "state": 0
+                    },
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 290,
+                            "length": 218
+                        },
+                        "contentStart": 292,
+                        "state": 0
+                    }
+                ]
+            },
+            "data": []
+        },
+        {
+            "state": {
+                "start": 24,
+                "end": 60,
+                "language": "mysql",
+                "result": {
+                    "type": "text",
+                    "text": [
+                        {
+                            "type": 2,
+                            "index": 1,
+                            "resultId": "1f4281e1-e7a3-4f27-9674-04c3465cc21f",
+                            "content": "OK, 0 records retrieved in 16.388ms"
+                        }
+                    ]
+                },
+                "currentHeight": 28,
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": "//",
+                        "span": {
+                            "start": 0,
+                            "length": 12
+                        },
+                        "contentStart": 0,
+                        "state": 4
+                    },
+                    {
+                        "delimiter": "//",
+                        "span": {
+                            "start": 12,
+                            "length": 1047
+                        },
+                        "contentStart": 14,
+                        "state": 0
+                    },
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 1059,
+                            "length": 13
+                        },
+                        "contentStart": 1061,
+                        "state": 4
+                    }
+                ]
+            },
+            "data": []
+        },
+        {
+            "state": {
+                "start": 61,
+                "end": 62,
+                "language": "mysql",
+                "result": {
+                    "type": "text",
+                    "text": [
+                        {
+                            "type": 2,
+                            "index": 0,
+                            "resultId": "fdf6df01-0dfd-4337-ab0e-03a35e7b561a",
+                            "content": "OK, 1 row affected in 11.382ms"
+                        },
+                        {
+                            "type": 2,
+                            "index": 1,
+                            "resultId": "fd770dea-3abb-4488-9b1a-cbd5a751d3a2",
+                            "content": "OK, 1 row affected in 8.897ms"
+                        }
+                    ]
+                },
+                "currentHeight": 28,
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 80
+                        },
+                        "contentStart": 0,
+                        "state": 0
+                    },
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 80,
+                            "length": 60
+                        },
+                        "contentStart": 81,
+                        "state": 0
+                    }
+                ]
+            },
+            "data": []
+        },
+        {
+            "state": {
+                "start": 63,
+                "end": 63,
+                "language": "mysql",
+                "result": {
+                    "type": "text",
+                    "text": [
+                        {
+                            "type": 2,
+                            "index": 0,
+                            "resultId": "d13a091a-33d0-4bef-f0be-09707926147f",
+                            "content": "OK, 0 records retrieved in 17.085ms",
+                            "subIndex": 0
+                        }
+                    ]
+                },
+                "currentHeight": 28,
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 34
+                        },
+                        "contentStart": 0,
+                        "state": 0
+                    }
+                ]
+            },
+            "data": []
+        },
+        {
+            "state": {
+                "start": 64,
+                "end": 64,
+                "language": "mysql",
+                "result": {
+                    "type": "resultIds",
+                    "list": [
+                        "d99cc186-aea2-4394-c6cb-5f7de69c2e5d"
+                    ]
+                },
+                "currentHeight": 36,
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 19
+                        },
+                        "contentStart": 0,
+                        "state": 0
+                    }
+                ]
+            },
+            "data": [
+                {
+                    "tabId": "24d3a365-3c77-4927-9dff-7fc909505b29",
+                    "resultId": "d99cc186-aea2-4394-c6cb-5f7de69c2e5d",
+                    "rows": [
+                        {
+                            "0": "data.txt",
+                            "1": "2023-01-01 10:00:00",
+                            "2": "2026-04-17 00:00:40",
+                            "3": 2048,
+                            "4": "txt",
+                            "5": "2026-04-17 00:00:49"
+                        }
+                    ],
+                    "columns": [
+                        {
+                            "title": "file_name",
+                            "field": "0",
+                            "dataType": {
+                                "type": 17,
+                                "characterMaximumLength": 65535,
+                                "flags": [
+                                    "BINARY",
+                                    "ASCII",
+                                    "UNICODE"
+                                ],
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        },
+                        {
+                            "title": "time_of_creation",
+                            "field": "1",
+                            "dataType": {
+                                "type": 26,
+                                "dateTimePrecision": 8,
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        },
+                        {
+                            "title": "time_of_last_access",
+                            "field": "2",
+                            "dataType": {
+                                "type": 26,
+                                "dateTimePrecision": 8,
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        },
+                        {
+                            "title": "size_of_file",
+                            "field": "3",
+                            "dataType": {
+                                "type": 4,
+                                "flags": [
+                                    "SIGNED",
+                                    "ZEROFILL"
+                                ],
+                                "numericPrecision": 10,
+                                "parameterFormatType": "OneOrZero",
+                                "synonyms": [
+                                    "INTEGER",
+                                    "INT4"
+                                ]
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        },
+                        {
+                            "title": "file_format",
+                            "field": "4",
+                            "dataType": {
+                                "type": 17,
+                                "characterMaximumLength": 65535,
+                                "flags": [
+                                    "BINARY",
+                                    "ASCII",
+                                    "UNICODE"
+                                ],
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        },
+                        {
+                            "title": "logged_at",
+                            "field": "5",
+                            "dataType": {
+                                "type": 26,
+                                "dateTimePrecision": 8,
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        }
+                    ],
+                    "executionInfo": {
+                        "text": "OK, 1 record retrieved in 0.685ms"
+                    },
+                    "totalRowCount": 1,
+                    "hasMoreRows": false,
+                    "currentPage": 0,
+                    "index": 0,
+                    "sql": "SELECT * FROM log_",
+                    "updatable": false,
+                    "fullTableName": "log_"
+                }
+            ]
+        },
+        {
+            "state": {
+                "start": 65,
+                "end": 82,
+                "language": "mysql",
+                "result": {
+                    "type": "text",
+                    "text": [
+                        {
+                            "type": 2,
+                            "index": 0,
+                            "resultId": "3a5017c2-e750-4a04-9746-83fe3b382c6f",
+                            "content": "OK, 0 records retrieved in 48.326ms"
+                        },
+                        {
+                            "type": 2,
+                            "index": 1,
+                            "resultId": "2d278b90-92ae-4ec8-b5f7-cf0bc3a7d677",
+                            "content": "OK, 0 records retrieved in 37.593ms"
+                        },
+                        {
+                            "type": 2,
+                            "index": 2,
+                            "resultId": "78775147-9eac-4e17-c076-847a0f3842b0",
+                            "content": "OK, 0 records retrieved in 63.974ms"
+                        }
+                    ]
+                },
+                "currentHeight": 62.96875,
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 109
+                        },
+                        "contentStart": 0,
+                        "state": 0
+                    },
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 109,
+                            "length": 90
+                        },
+                        "contentStart": 111,
+                        "state": 0
+                    },
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 199,
+                            "length": 195
+                        },
+                        "contentStart": 201,
+                        "state": 0
+                    }
+                ]
+            },
+            "data": []
+        },
+        {
+            "state": {
+                "start": 83,
+                "end": 96,
+                "language": "mysql",
+                "result": {
+                    "type": "text",
+                    "text": [
+                        {
+                            "type": 2,
+                            "index": 1,
+                            "resultId": "e66e4862-8da5-44e4-cb04-ccefa0b3c39d",
+                            "content": "OK, 0 records retrieved in 17.697ms"
+                        }
+                    ]
+                },
+                "currentHeight": 28,
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": "//",
+                        "span": {
+                            "start": 0,
+                            "length": 12
+                        },
+                        "contentStart": 0,
+                        "state": 4
+                    },
+                    {
+                        "delimiter": "//",
+                        "span": {
+                            "start": 12,
+                            "length": 311
+                        },
+                        "contentStart": 14,
+                        "state": 0
+                    },
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 323,
+                            "length": 13
+                        },
+                        "contentStart": 325,
+                        "state": 4
+                    }
+                ]
+            },
+            "data": []
+        },
+        {
+            "state": {
+                "start": 97,
+                "end": 112,
+                "language": "mysql",
+                "result": {
+                    "type": "text",
+                    "text": [
+                        {
+                            "type": 2,
+                            "index": 1,
+                            "resultId": "6d6a4856-756e-4242-fe53-c4a65db077fa",
+                            "content": "OK, 0 records retrieved in 19.715ms"
+                        }
+                    ]
+                },
+                "currentHeight": 28,
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": "//",
+                        "span": {
+                            "start": 0,
+                            "length": 12
+                        },
+                        "contentStart": 0,
+                        "state": 4
+                    },
+                    {
+                        "delimiter": "//",
+                        "span": {
+                            "start": 12,
+                            "length": 277
+                        },
+                        "contentStart": 14,
+                        "state": 0
+                    },
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 289,
+                            "length": 13
+                        },
+                        "contentStart": 291,
+                        "state": 4
+                    }
+                ]
+            },
+            "data": []
+        },
+        {
+            "state": {
+                "start": 113,
+                "end": 114,
+                "language": "mysql",
+                "result": {
+                    "type": "text",
+                    "text": [
+                        {
+                            "type": 2,
+                            "index": 0,
+                            "resultId": "e28b2786-0913-4b5a-8540-257a647f87a5",
+                            "content": "OK, 1 row affected in 7.943ms"
+                        },
+                        {
+                            "type": 2,
+                            "index": 1,
+                            "resultId": "9d39e188-9942-4c80-8963-ce36203910f2",
+                            "content": "OK, 1 row affected in 6.925ms"
+                        }
+                    ]
+                },
+                "currentHeight": 28,
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 65
+                        },
+                        "contentStart": 0,
+                        "state": 0
+                    },
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 65,
+                            "length": 84
+                        },
+                        "contentStart": 66,
+                        "state": 0
+                    }
+                ]
+            },
+            "data": []
+        },
+        {
+            "state": {
+                "start": 115,
+                "end": 116,
+                "language": "mysql",
+                "result": {
+                    "type": "resultIds",
+                    "list": [
+                        "e6ab80f7-ddab-4ced-8e7f-918c937527a9",
+                        "0bb26bb5-4152-49fc-c115-2b352a67973e"
+                    ]
+                },
+                "currentHeight": 36,
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 68
+                        },
+                        "contentStart": 0,
+                        "state": 0
+                    },
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 68,
+                            "length": 22
+                        },
+                        "contentStart": 69,
+                        "state": 0
+                    }
+                ]
+            },
+            "data": [
+                {
+                    "tabId": "24d3a365-3c77-4927-9dff-7fc909505b29",
+                    "resultId": "e6ab80f7-ddab-4ced-8e7f-918c937527a9",
+                    "rows": [
+                        {
+                            "0": "J.K. Rowling",
+                            "1": 500
+                        }
+                    ],
+                    "columns": [
+                        {
+                            "title": "Name",
+                            "field": "0",
+                            "dataType": {
+                                "type": 17,
+                                "characterMaximumLength": 65535,
+                                "flags": [
+                                    "BINARY",
+                                    "ASCII",
+                                    "UNICODE"
+                                ],
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": true,
+                            "nullable": false,
+                            "autoIncrement": false
+                        },
+                        {
+                            "title": "SoldCopies",
+                            "field": "1",
+                            "dataType": {
+                                "type": 4,
+                                "flags": [
+                                    "SIGNED",
+                                    "ZEROFILL"
+                                ],
+                                "numericPrecision": 10,
+                                "parameterFormatType": "OneOrZero",
+                                "synonyms": [
+                                    "INTEGER",
+                                    "INT4"
+                                ]
+                            },
+                            "inPK": false,
+                            "nullable": true,
+                            "autoIncrement": false,
+                            "default": "0"
+                        }
+                    ],
+                    "executionInfo": {
+                        "text": "OK, 1 record retrieved in 0.735ms"
+                    },
+                    "totalRowCount": 1,
+                    "hasMoreRows": false,
+                    "currentPage": 0,
+                    "index": 1,
+                    "sql": "\nSELECT * FROM AUTHOR",
+                    "updatable": true,
+                    "fullTableName": "AUTHOR"
+                },
+                {
+                    "tabId": "24d3a365-3c77-4927-9dff-7fc909505b29",
+                    "resultId": "0bb26bb5-4152-49fc-c115-2b352a67973e",
+                    "rows": [],
+                    "columns": [
+                        {
+                            "title": "*",
+                            "field": "0",
+                            "dataType": {
+                                "type": 0
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        }
+                    ],
+                    "executionInfo": {
+                        "text": "OK, 1 row affected in 18.124ms"
+                    },
+                    "totalRowCount": 0,
+                    "hasMoreRows": false,
+                    "currentPage": 0,
+                    "index": 0,
+                    "sql": "INSERT INTO WRITING (Isbn, Name) VALUES ('123-ABC', 'J.K. Rowling')",
+                    "updatable": false
+                }
+            ]
+        },
+        {
+            "state": {
+                "start": 117,
+                "end": 118,
+                "language": "mysql",
+                "result": {
+                    "type": "resultIds",
+                    "list": [
+                        "d4cee042-f525-4d4d-e9e4-318ebfb7fb16",
+                        "af8d1ae5-1ddc-4cea-cbd9-fb3b443e2422"
+                    ]
+                },
+                "currentHeight": 36,
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 56
+                        },
+                        "contentStart": 0,
+                        "state": 0
+                    },
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 56,
+                            "length": 22
+                        },
+                        "contentStart": 57,
+                        "state": 0
+                    }
+                ]
+            },
+            "data": [
+                {
+                    "tabId": "24d3a365-3c77-4927-9dff-7fc909505b29",
+                    "resultId": "d4cee042-f525-4d4d-e9e4-318ebfb7fb16",
+                    "rows": [
+                        {
+                            "0": "J.K. Rowling",
+                            "1": 600
+                        }
+                    ],
+                    "columns": [
+                        {
+                            "title": "Name",
+                            "field": "0",
+                            "dataType": {
+                                "type": 17,
+                                "characterMaximumLength": 65535,
+                                "flags": [
+                                    "BINARY",
+                                    "ASCII",
+                                    "UNICODE"
+                                ],
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": true,
+                            "nullable": false,
+                            "autoIncrement": false
+                        },
+                        {
+                            "title": "SoldCopies",
+                            "field": "1",
+                            "dataType": {
+                                "type": 4,
+                                "flags": [
+                                    "SIGNED",
+                                    "ZEROFILL"
+                                ],
+                                "numericPrecision": 10,
+                                "parameterFormatType": "OneOrZero",
+                                "synonyms": [
+                                    "INTEGER",
+                                    "INT4"
+                                ]
+                            },
+                            "inPK": false,
+                            "nullable": true,
+                            "autoIncrement": false,
+                            "default": "0"
+                        }
+                    ],
+                    "executionInfo": {
+                        "text": "OK, 1 record retrieved in 0.574ms"
+                    },
+                    "totalRowCount": 1,
+                    "hasMoreRows": false,
+                    "currentPage": 0,
+                    "index": 1,
+                    "sql": "\nSELECT * FROM AUTHOR",
+                    "updatable": true,
+                    "fullTableName": "AUTHOR"
+                },
+                {
+                    "tabId": "24d3a365-3c77-4927-9dff-7fc909505b29",
+                    "resultId": "af8d1ae5-1ddc-4cea-cbd9-fb3b443e2422",
+                    "rows": [],
+                    "columns": [
+                        {
+                            "title": "*",
+                            "field": "0",
+                            "dataType": {
+                                "type": 0
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        }
+                    ],
+                    "executionInfo": {
+                        "text": "OK, 1 row affected in 14.322ms"
+                    },
+                    "totalRowCount": 0,
+                    "hasMoreRows": false,
+                    "currentPage": 0,
+                    "index": 0,
+                    "sql": "UPDATE BOOK SET SoldCopies = 600 WHERE Isbn = '123-ABC'",
+                    "updatable": false
+                }
+            ]
+        },
+        {
+            "state": {
+                "start": 119,
+                "end": 119,
+                "language": "mysql",
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 0
+                        },
+                        "contentStart": 0,
+                        "state": 0
+                    }
+                ]
+            },
+            "data": []
+        }
+    ]
+}
